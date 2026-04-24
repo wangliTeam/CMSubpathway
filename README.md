@@ -1,22 +1,45 @@
-# CMSubpathway
+[README.md](https://github.com/user-attachments/files/27042714/README.md)
+# CMSubpathway Analysis Pipeline
 
-## Overview
-**CMSubpathway** is an integrative computational framework developed to identify and characterize cancer-specific risk metabolic subpathways. By coupling metabolic network topology with multi-omics data, the pipeline identifies localized functional modules that drive cancer progression and influence clinical outcomes.
+Complete reproducible analysis pipeline for metabolic subpathway identification and validation in breast cancer.
 
-## Methodology
-The identification process follows a four-stage workflow:
-1.  **Topological Extraction**: Partitioning 84 KEGG metabolic networks into sub-units using the **LTE (Local Tightness Expansion)** algorithm.
-2.  **Dysregulation Screening**: Identifying significant expression perturbations between tumor and normal tissues via **GSEA** (|NES| > 1, FDR < 0.25).
-3.  **Prognostic Analysis**: Stratifying patient survival based on subpathway activity calculated through **GSVA**.
-4.  **Diagnostic Classification**: Evaluating the discrimination power of candidate subpathways using **Support Vector Machine (SVM)** models.
+## Software Environment
 
-## Key Findings (Breast Cancer)
-* Identified a **12-gene core metabolic module** (primarily ADH and ALDH families) bridging pyruvate and fatty acid metabolism.
-* Activity of this module is inversely correlated with lactate accumulation and significantly associated with the differentiation and exhaustion of stem-like **CD8+ T cells**.
+- **R version**: >= 4.2.0
+- **Core packages**:
+  - Bioconductor: `KEGGgraph`, `clusterProfiler`, `org.Hs.eg.db`, `GSVA`, `limma`, `survival`, `survminer`, `GEOquery`
+  - CRAN: `igraph`, `e1071`, `pROC`, `reshape2`, `ggplot2`, `ggpubr`, `patchwork`, `data.table`, `dplyr`, `tidyr`, `openxlsx`, `stringr`, `pheatmap`
+  - Single-cell: `Seurat`, `harmony`, `CytoTRACE` (optional)
 
-## File Structure
-* `subpathway.R`: Core identification pipeline, including network community detection, subsampling GSEA, and SVM classification.
-* `analysis.R`: Downstream validation scripts for BRCA-specific datasets, single-cell analysis (Seurat), and immune-metabolic correlation studies.
+## Installation
 
-## Citation
-> Zhao et al. (2026). **Identification and characterization of cancer-related risk metabolic subpathways reveal their functional significance in cancer**. Harbin Medical University.
+```r
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("KEGGgraph", "clusterProfiler", "org.Hs.eg.db", "GSVA", "limma", "survival", "survminer", "GEOquery"))
+install.packages(c("igraph", "e1071", "pROC", "reshape2", "ggplot2", "ggpubr", "patchwork", "data.table", "dplyr", "tidyr", "openxlsx", "stringr", "pheatmap", "Seurat", "harmony"))
+```
+
+## Execution Order
+
+| Step | Script                                     | Description                                                                                                                                                                           |
+| ---- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 00   | `00_Download_Raw_Data.R`                   | Data source documentation and download instructions                                                                                                                                   |
+| 01   | `01_Metabolic_Subpathway_Identification.R` | KEGG metabolic pathway download, network construction, subpathway identification (LTE algorithm)                                                                                      |
+| 02   | `02_Differential_Expression_and_GSEA.R`    | Differential expression analysis and GSEA with 100 random resampling permutations                                                                                                     |
+| 03   | `03_Prognostic_Assessment_GSVA.R`          | GSVA/ssGSEA scoring and survival analysis (log-rank test)                                                                                                                             |
+| 04   | `04_Classification_Assessment_SVM.R`       | SVM classification and AUC evaluation for each subpathway                                                                                                                             |
+| 05   | `05_BRCA_Validation_GSE42568.R`            | Independent BRCA dataset validation and Subpathway-CorSP benchmark                                                                                                                    |
+| 06   | `06_Core_Module_MultiOmics_Validation.R`   | Core metabolic module (12 genes) validation across transcriptome, proteome, and metabolome                                                                                            |
+| 07   | `07_Peripheral_Blood_Validation.R`         | Core module validation in 9 peripheral blood cohorts (GSE111842, GSE109761, GSE111065, GSE51827, GSE55807, GSE67939, GSE75367, GSE86978, GSE41245) with ssGSEA-tumor cell correlation |
+| 08   | `08_Core_Module_Functional_Analysis.R`     | Immune infiltration analysis, chemotherapy subgroup survival, pathway enrichment                                                                                                      |
+| 09   | `09_scRNA_Seq_Analysis.R`                  | scRNA-seq QC, clustering, cell annotation, SiPSiC scoring, CD8 T cell subtypes, CytoTRACE                                                                                             |
+| 10   | `10_CRISPR_Analysis.R`                     | CRISPR-Cas9 dependency analysis for core module genes in breast cancer cell lines                                                                                                     |
+| 11   | `11_Supplementary_Validation.R`            | Expression Atlas validation and fat interference experiment analysis                                                                                                                  |
+
+<br />
+
+# Reproducibility Notes
+
+- All random processes use fixed seeds (`set.seed(123)`)
+- All file paths are relative to project root directory
+
