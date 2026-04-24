@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/27042714/README.md)
 # CMSubpathway Analysis Pipeline
 
 Complete reproducible analysis pipeline for metabolic subpathway identification and validation in breast cancer.
