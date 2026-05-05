@@ -2,8 +2,8 @@ library(ggplot2)
 library(ggpubr)
 library(data.table)
 
-CRISPRGeneEffect <- fread("./step4/data/DepMap/CRISPRGeneEffect.csv", data.table = FALSE)
-Model <- fread("./step4/data/DepMap/Model.csv", data.table = FALSE)
+CRISPRGeneEffect <- fread("./DepMap/CRISPRGeneEffect.csv", data.table = FALSE)#download from depmap https://depmap.org/portal/data_page/?tab=allData&releasename=DepMap%20Public%2026Q1&filename=CRISPRGeneEffect.csv
+Model <- fread("./step4/data/Model.csv", data.table = FALSE)
 
 # 12 gens
 core_module_genes <- c("ADH1A", "ADH1B", "ADH1C", "ADH4", "ADH5", "ADH6", "ADH7",
